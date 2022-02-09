@@ -1,21 +1,25 @@
-#include <8052.h>
+#include <mcs51reg.h>
 
-void delay(void);
+char *str = "12345";
 
-void main(void)
-{
-    while(1)
-    {
-         P1 = 0xFF; // Turn ON all LED's connected to Port1
-         delay();
-         P1 = 0x00; // Turn OFF all LED's connected to Port1
-         delay();
-    }
+void transmit(char byte) {
+  SBUF = byte; /* Load char in SBUF register */
+  while (TI == 0)
+    ;     /* Wait until stop bit transmit */
+  TI = 0; /* Clear TI flag */
 }
 
-void delay(void)
-{
-    int i,j;
-    for(i=0;i<0xff;i++)
-         for(j=0;j<0xff;j++);
+void main(void) {
+
+  TMOD = 0x20; /* Timer 1, 8-bit auto reload mode */
+  TH1 = 0xFD;  /* Load value for 9600 baud rate */
+  SCON = 0x50; /* Mode 1, reception enable */
+  TR1 = 1;     /* Start timer 1 */
+
+  while (1) {
+
+    for (int i = 0; i < sizeof(str); i++) {
+      transmit(str[i]);
+    }
+  }
 }

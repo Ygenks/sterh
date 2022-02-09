@@ -1,6 +1,18 @@
 #include <mcs51reg.h>
+#include <string.h>
 
-char *str = "12345";
+static char *str = "12345";
+
+void delay() {
+  TMOD = 0x01; // Timer0 mode1
+  TH0 = 0xFC;  // initial value for 1ms
+  TL0 = 0x66;
+  TR0 = 1; // timer start
+  while (TF0 == 0)
+    ;      // check overflow condition
+  TR0 = 0; // Stop Timer
+  TF0 = 0; // Clear flag
+}
 
 void transmit(char byte) {
   SBUF = byte; /* Load char in SBUF register */
@@ -18,8 +30,9 @@ void main(void) {
 
   while (1) {
 
-    for (int i = 0; i < sizeof(str); i++) {
+    for (int i = 0; i < strlen(str); i++) {
       transmit(str[i]);
+      delay();
     }
   }
 }

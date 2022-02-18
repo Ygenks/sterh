@@ -28,11 +28,15 @@ void main(void) {
   SCON = 0x50; /* Mode 1, reception enable */
   TR1 = 1;     /* Start timer 1 */
 
+  P2 = 0xFF;
+
   while (1) {
 
     for (int i = 0; i < strlen(str); i++) {
       transmit(str[i]);
       delay();
     }
+
+    P2 = ~P2;
   }
 }
